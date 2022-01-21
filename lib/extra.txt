@@ -1,0 +1,123 @@
+
+            Positioned(
+              right: b,
+              bottom: b,
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        height: b,
+                        width: b,
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            move = 'u';
+                            // upmove();
+                          });
+                        },
+                        child: Container(
+                          color: Colors.amber,
+                          height: b,
+                          width: b,
+                        ),
+                      ),
+                      Container(
+                        height: b,
+                        width: b,
+                      )
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            move = 'l';
+                            // leftmove();
+                          });
+                        },
+                        child: Container(
+                          color: Colors.amber,
+                          height: b,
+                          width: b,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          // setState(() {
+                          //   snake_move.cancel();
+                          //   // snake_length(15);
+                          // });
+                          reSet();
+                        },
+                        child: Container(
+                          color: Colors.red,
+                          height: b,
+                          width: b,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            move = 'r';
+                            // rightmove();
+                          });
+                        },
+                        child: Container(
+                          color: Colors.amber,
+                          height: b,
+                          width: b,
+                        ),
+                      )
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Container(
+                        height: b,
+                        width: b,
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            move = 'd';
+                            // downmove();
+                          });
+                        },
+                        child: Container(
+                          color: Colors.amber,
+                          height: b,
+                          width: b,
+                        ),
+                      ),
+                      // rightmove();
+                      Container(
+                        height: b,
+                        width: b,
+                      )
+                    ],
+                  ),
+                ],
+              ),
+            )
+      
+
+       Row(
+                children: [
+                  Expanded(
+                      flex: 5,
+                      child: Container(
+                          // child: Text("'Your Score : ${snake.length - 4}'"),
+                          )),
+                  Expanded(
+                      flex: 2,
+                      child: FlatButton(
+                        onPressed: () {
+                          sTopSnake();
+                        },
+                        child: Text("Reset"),
+                      )),
+                ],
+              )
