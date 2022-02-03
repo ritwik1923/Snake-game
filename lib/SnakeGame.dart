@@ -25,7 +25,6 @@ class _SnakeGameState extends State<SnakeGame> {
   int _counter = 0;
   late int line = 20;
   late int per_col = 20;
-  // late List<int> food_loc;
 
   bool down = true;
   bool left = true;
@@ -70,12 +69,7 @@ class _SnakeGameState extends State<SnakeGame> {
       65,
     ];
 
-    snake_in = [
-      5,
-      25,
-      45,
-      65,
-    ];
+    snake_in = [...snake];
 
     // defines a timer
     snake_move =
@@ -83,14 +77,9 @@ class _SnakeGameState extends State<SnakeGame> {
     var oneSec = Duration(seconds: 1);
     food_animation = Timer.periodic(oneSec, (Timer t) {
       setState(() {
-        if (fa == true)
-          fa = false;
-        else
-          fa = true;
-        // fa != fa;
+        fa = !fa;
       });
     });
-    // Timer.periodic(Duration(milliseconds: widget.speed), );
     foodGenrator();
   }
 
@@ -105,7 +94,6 @@ class _SnakeGameState extends State<SnakeGame> {
   Widget build(BuildContext context) {
     double h = MediaQuery.of(context).size.height;
     double w = MediaQuery.of(context).size.width;
-// RawKeyboardListener(
     return GestureDetector(
       onHorizontalDragUpdate: (details) {
         setState(() {
@@ -162,8 +150,6 @@ class _SnakeGameState extends State<SnakeGame> {
                 maxWidth: 500,
                 minWidth: 400,
               ),
-              // color: Colors.amber,
-              // width: w,
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -192,11 +178,6 @@ class _SnakeGameState extends State<SnakeGame> {
                                     borderRadius: BorderRadius.circular(5),
                                     child: Container(
                                       color: boxColor(index),
-                                      // child: index == food
-                                      //     ? fa == true
-                                      //         ? Text("#")
-                                      //         : Text(" ")
-                                      //     : null,
                                     ),
                                   ),
                                 ),
@@ -225,7 +206,7 @@ class _SnakeGameState extends State<SnakeGame> {
                                   // height: 75,
                                   color: snakecolor,
                                   onPressed: () {
-                                    sTopSnake();
+                                    reSet();
                                   },
                                   child: AutoResizeText("Reset", "h2",
                                       op: false))),
@@ -288,18 +269,20 @@ class _SnakeGameState extends State<SnakeGame> {
   void reSet() {
     setState(() {
       debugPrint("restting after game over...");
-      snake.clear();
       debugPrint("${snake_in}");
+      pre_move = "d";
+      move = "d";
+      snake = [...snake_in];
+      debugPrint("${snake}");
 
-      snake = snake_in;
-      food = 0;
-      // foodGenrator();
+      foodGenrator();
+      if (snake_move != null) snake_move.cancel();
       snake_move =
-          Timer.periodic(const Duration(milliseconds: 1000), snake_reset);
+          Timer.periodic(Duration(milliseconds: widget.speed), snake_reset);
     });
   }
 
-// TODO: better impliment stopsnake  restart
+// DONE TODO: better impliment stopsnake  restart
   void sTopSnake() {
     setState(() {
       // snake_move.
@@ -315,7 +298,10 @@ class _SnakeGameState extends State<SnakeGame> {
           actions: <Widget>[
             TextButton(
               // Todo: pause timmer
-              onPressed: () => Navigator.pop(context, 'Cancel'),
+              onPressed: () {
+                Navigator.pop(context, 'Cancel');
+                reSet();
+              },
               child: Text(
                 'Cancel',
                 style: TextStyle(color: snakecolor),
@@ -325,7 +311,6 @@ class _SnakeGameState extends State<SnakeGame> {
               onPressed: () {
                 // Todo: reset all after game over
                 Navigator.popUntil(context, ModalRoute.withName('/'));
-                // reSet();
                 // Navigator.pop(context, 'OK');
                 // Navigator.pop(context);
               },
