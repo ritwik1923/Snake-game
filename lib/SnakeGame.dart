@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:snake_game/constant.dart';
+import 'package:snake_game/db.dart';
 
 class SnakeGame extends StatefulWidget {
   const SnakeGame({Key? key, required this.title, required this.speed})
@@ -268,6 +269,7 @@ class _SnakeGameState extends State<SnakeGame> {
 
   void reSet() {
     setState(() {
+      db_add_score(snake.length - 4, widget.title);
       debugPrint("restting after game over...");
       debugPrint("${snake_in}");
       pre_move = "d";
@@ -285,6 +287,8 @@ class _SnakeGameState extends State<SnakeGame> {
 // DONE TODO: better impliment stopsnake  restart
   void sTopSnake() {
     setState(() {
+      // ? print("done")
+      // : print("failed");
       // snake_move.
       snake_move.cancel();
       showDialog<String>(
@@ -310,6 +314,7 @@ class _SnakeGameState extends State<SnakeGame> {
             TextButton(
               onPressed: () {
                 // Todo: reset all after game over
+                db_add_score(snake.length - 4, widget.title);
                 Navigator.popUntil(context, ModalRoute.withName('/'));
                 // Navigator.pop(context, 'OK');
                 // Navigator.pop(context);
