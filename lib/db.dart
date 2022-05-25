@@ -6,17 +6,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 class Level {
   final String title;
   final int speed;
-  final int max_score_till_now;
-  Level(this.title, this.speed, this.max_score_till_now);
+  final int autoResizeText;
+  Level(this.title, this.speed, this.autoResizeText);
 }
 
+// ignore: todo
+// TODO: better refractorial code
 String game = 'snake_game';
 // List<String> snake_game = ["nood",];
 
-Future<Map<String, dynamic>> game_score() async {
+Future<Map<String, dynamic>> gameScore() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   if (!prefs.containsKey(game)) {
-    db_init();
+    dbInit();
   }
   String? userPref = prefs.getString(game);
   // debugPrint("sending data: ${userPref}");
@@ -24,7 +26,7 @@ Future<Map<String, dynamic>> game_score() async {
   return jsonDecode(userPref!) as Map<String, dynamic>;
 }
 
-Future<bool> db_init() async {
+Future<bool> dbInit() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
   Map<String, dynamic> user = {
@@ -37,14 +39,15 @@ Future<bool> db_init() async {
   return await prefs.setString(game, jsonEncode(user));
 }
 
-Future<bool> db_add_score(int score, String level) async {
+Future<bool> dbAddScore(int score, String level) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? userPref = prefs.getString(game);
   debugPrint("data: $userPref");
   Map<String, dynamic> userMap = jsonDecode(userPref!) as Map<String, dynamic>;
   debugPrint("data map: $userMap");
-  if (userMap[level.toLowerCase()]["score"] < score)
+  if (userMap[level.toLowerCase()]["score"] < score) {
     userMap[level.toLowerCase()]["score"] = score;
+  }
   debugPrint("data map added: $userMap");
   return await prefs.setString(game, jsonEncode(userMap));
 }

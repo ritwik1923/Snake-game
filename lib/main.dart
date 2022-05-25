@@ -1,11 +1,12 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:auto_size_text/auto_size_text.dart';
 
-import 'package:flutter/services.dart';
 import 'package:snake_game/SnakeGame.dart';
-import 'package:snake_game/constant.dart';
+import 'package:snake_game/extra/constant.dart';
 import 'package:snake_game/db.dart';
+import 'package:snake_game/grid.dart';
 
 /*
 Todo issue:
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
 
       initialRoute: '/',
       routes: {
-        '/': (context) => SnakeIntro(),
+        '/': (context) => const SnakeIntro(),
         // '/sgame?s=speed': (context) => SnakeGame(title: title,speed: speed,),
       },
       // title: 'Flutter Demo',
@@ -38,11 +39,10 @@ class MyApp extends StatelessWidget {
         // colorScheme: ColorScheme.dark(),
 
         primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: Color(0xff9BBA5A),
-        backgroundColor: Color(0xff272F17),
+        scaffoldBackgroundColor: backgroundColor,
+        backgroundColor: const Color(0xff272F17),
       ),
-
-      // home:
+      // home: const GridMake()
       // SnakeIntro()
       // RopSayac(),
       // SnakeGame(title: 'Flutter Demo Home Page', speed: 200),
@@ -58,13 +58,14 @@ class SnakeIntro extends StatefulWidget {
 }
 
 class _SnakeIntroState extends State<SnakeIntro> {
-  @override
   Map<String, dynamic>? gs;
   Timer? ff;
+  @override
   void initState() {
+    // ignore: todo
     // TODO: implement initState
     super.initState();
-    ff = Timer.periodic(Duration(milliseconds: 1000), foo);
+    ff = Timer.periodic(const Duration(milliseconds: 1000), foo);
     // doSomeAsyncStuff();
   }
 
@@ -76,12 +77,12 @@ class _SnakeIntroState extends State<SnakeIntro> {
 
   bool f = true;
   Future<void> doSomeAsyncStuff() async {
-    gs = await game_score();
+    gs = await gameScore();
   }
 
   void foo(Timer timer) async {
     f = !f;
-    gs = await game_score();
+    gs = await gameScore();
     setState(() {
       gs = gs;
     });
@@ -91,53 +92,81 @@ class _SnakeIntroState extends State<SnakeIntro> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(
+          actions: [],
+          backgroundColor: backgroundColor,
+          elevation: 0,
+        ),
         body: FutureBuilder(
             future: doSomeAsyncStuff(),
             builder: (context, snapshot) {
               if (gs == null) {
                 // Future hasn't finished yet, return a placeholder
-                return Center(child: CircularProgressIndicator());
+                return const Center(child: CircularProgressIndicator());
               } else {
                 return Center(
-                  child: Container(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // Text("$f"),
-                        Level(gs!["noob"]["speed"], "Noobs",
-                            gs!["noob"]["score"]),
-                        Level(
-                            gs!["boss"]["speed"], "Boss", gs!["boss"]["score"]),
-                        Level(gs!["legend"]["speed"], "Legend",
-                            gs!["legend"]["score"]),
-                      ],
-                    ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SnakeTitle(),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            width: 10,
+                            color: snakecolor,
+                          ),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+
+                          // color: Colors.pink,
+                        ),
+                        height: 25 * 15,
+                        width: 500,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // Text("$f"),
+
+                            level(gs!["noob"]["speed"], "Noob",
+                                gs!["noob"]["score"]),
+                            level(gs!["boss"]["speed"], "Boss",
+                                gs!["boss"]["score"]),
+                            level(gs!["legend"]["speed"], "Legend",
+                                gs!["legend"]["score"]),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 );
               }
             }));
   }
 
-  Widget Level(int speed, String title, int score) {
+// different level in game
+  Widget level(int speed, String title, int score) {
     return FlatButton(
         onPressed: () {
           Navigator.push(
               context,
               MaterialPageRoute(
                   builder: (context) => SnakeGame(
-                        title: "$title",
+                        title: title,
                         speed: speed,
                       )));
         },
         child: Container(
-          constraints: BoxConstraints(minWidth: 100, maxWidth: 300),
+          constraints: const BoxConstraints(minWidth: 100, maxWidth: 300),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              AutoResizeText("$title", "h1"),
-              AutoResizeText("$score", "h1"),
+              autoResizeText(title, "h1"),
+              autoResizeText("$score", "h1"),
             ],
           ),
         ));

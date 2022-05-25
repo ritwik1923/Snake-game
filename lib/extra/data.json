@@ -1,0 +1,14 @@
+{
+    "nood": {
+        "speed" : 500,
+        "score" : 30
+    },
+    "boss":{
+        "speed" : 500,
+        "score" : 30
+    },
+    "legend":{
+        "speed" : 500,
+        "score" : 30
+    }
+}

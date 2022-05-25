@@ -1,8 +1,11 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:async';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:snake_game/constant.dart';
+import 'package:snake_game/extra/constant.dart';
 import 'package:snake_game/db.dart';
 
 class SnakeGame extends StatefulWidget {
@@ -17,44 +20,46 @@ class SnakeGame extends StatefulWidget {
 }
 
 class _SnakeGameState extends State<SnakeGame> {
-  late String _now;
-  late Timer snake_move;
-  late Timer food_animation;
+  late Timer snakeMove;
+  late Timer foodAnimation;
   bool fa = true;
-  late List<int> snake_in, snake;
+  late List<int> snakeIn, snake;
 
-  int _counter = 0;
-  late int line = 20;
-  late int per_col = 20;
+  int lines = 15;
+  late int perCol = 20;
 
   bool down = true;
   bool left = true;
   double b = 50;
-  String pre_move = "d";
+  String preMove = "d";
   String move = "d";
   late int food;
-  snake_reset(Timer timer) {
+  snakeReset(Timer timer) {
     setState(() {
       if (move == 'u') {
-        if (pre_move != 'd')
+        if (preMove != 'd') {
           upmove();
-        else
+        } else {
           downmove();
+        }
       } else if (move == 'd') {
-        if (pre_move != 'u')
+        if (preMove != 'u') {
           downmove();
-        else
+        } else {
           upmove();
+        }
       } else if (move == 'r') {
-        if (pre_move != 'l')
+        if (preMove != 'l') {
           rightmove();
-        else
+        } else {
           leftmove();
+        }
       } else if (move == 'l') {
-        if (pre_move != 'r')
+        if (preMove != 'r') {
           leftmove();
-        else
+        } else {
           rightmove();
+        }
       }
     });
   }
@@ -70,13 +75,13 @@ class _SnakeGameState extends State<SnakeGame> {
       65,
     ];
 
-    snake_in = [...snake];
+    snakeIn = [...snake];
 
     // defines a timer
-    snake_move =
-        Timer.periodic(Duration(milliseconds: widget.speed), snake_reset);
-    var oneSec = Duration(seconds: 1);
-    food_animation = Timer.periodic(oneSec, (Timer t) {
+    snakeMove =
+        Timer.periodic(Duration(milliseconds: widget.speed), snakeReset);
+    var oneSec = const Duration(seconds: 1);
+    foodAnimation = Timer.periodic(oneSec, (Timer t) {
       setState(() {
         fa = !fa;
       });
@@ -87,12 +92,13 @@ class _SnakeGameState extends State<SnakeGame> {
   @override
   void dispose() {
     super.dispose();
-    food_animation.cancel();
-    snake_move.cancel();
+    foodAnimation.cancel();
+    snakeMove.cancel();
   }
 
   @override
   Widget build(BuildContext context) {
+    double sh = 10;
     double h = MediaQuery.of(context).size.height;
     double w = MediaQuery.of(context).size.width;
     return GestureDetector(
@@ -143,95 +149,126 @@ class _SnakeGameState extends State<SnakeGame> {
         },
         child: Scaffold(
           // backgroundColor: Colors.black,
+          appBar: AppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              color: snakecolor,
+              // tooltip: 'Increase volume by 10',
+              onPressed: () {
+                dbAddScore(snake.length - 4, widget.title);
+                Navigator.popUntil(context, ModalRoute.withName('/'));
+              },
+            ),
+            elevation: 0,
 
+            backgroundColor: backgroundColor,
+            // iconTheme: IconThemeData(color: snakecolor),
+          ),
           // Todo gesture cotrol
           body: Center(
-            child: Container(
-              constraints: BoxConstraints(
-                maxWidth: 500,
-                minWidth: 400,
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      height: h / 6,
-                    ),
-                    Expanded(
-                      // height: (line + 2) * per_col * 1.00,
-                      child: Container(
-                        // color: Colors.pink,
-                        child: GridView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: per_col),
-                            itemCount: line * per_col,
-                            itemBuilder: (BuildContext ctx, index) {
-                              // debugPrint("fa: $fa");
-                              return Center(
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  padding: EdgeInsets.all(2),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(5),
-                                    child: Container(
-                                      color: boxColor(index),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }),
-                      ),
-                    ),
-                    Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 15, vertical: 0),
-                      // height: 75,
-                      // color: Colors.pink,
-                      child: Row(
-                        // mainAxisAlignment: MainAxisAlignment.,
-                        children: [
-                          Expanded(
-                              flex: 5,
-                              // height: 75,
-                              child: Center(
-                                child: AutoResizeText(
-                                    "Your Score : ${snake.length - 4}", 'h2'),
-                              )),
-                          Expanded(
-                              flex: 2,
-                              child: FlatButton(
-                                  // height: 75,
-                                  color: snakecolor,
-                                  onPressed: () {
-                                    reSet();
-                                  },
-                                  child: AutoResizeText("Reset", "h2",
-                                      op: false))),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: h / 9,
-                    ),
-                  ],
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SnakeTitle(),
+                SizedBox(
+                  height: 20,
                 ),
-              ),
+                Container(
+                  width: 500,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Center(
+                        child: Text(
+                          "Score : ${snake.length - 4}",
+                          style: TextStyle(fontSize: 40),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 2 * sh,
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      width: 10,
+                      color: snakecolor,
+                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+
+                    // color: Colors.pink,
+                  ),
+                  height: 25 * 15,
+                  width: 500,
+                  child: GridView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: perCol),
+                      itemCount: lines * perCol,
+                      itemBuilder: (BuildContext ctx, index) {
+                        // debugPrint("fa: $fa");
+                        return Center(
+                          child: Container(
+                            alignment: Alignment.center,
+                            padding: EdgeInsets.all(2),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(5),
+                              child: Container(
+                                color: boxColor(index),
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                ),
+                SizedBox(
+                  height: sh,
+                ),
+                Container(
+                  width: 500,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      FlatButton(
+                          // height: 75,
+                          color: snakecolor,
+                          onPressed: () {
+                            reSet();
+                          },
+                          child: autoResizeText("Reset", "h2", op: false)),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 2 * sh,
+                ),
+                Center(
+                    child: AutoSizeText(
+                  "Use arrow key to move the snake",
+                  maxLines: 5,
+                  style: TextStyle(
+                    // fontFamily: 'SnakeGame',
+                    fontSize: 20,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                )),
+              ],
             ),
           ),
-          // This trailing comma makes auto-formatting nicer for build methods.
         ),
       ),
     );
   }
 
-  void print_snake() {
+  void printSnake() {
     // return;
     debugPrint("============\n ");
-    debugPrint("${snake} ");
+    debugPrint("$snake ");
     debugPrint("\n============\n ");
   }
 
@@ -240,11 +277,11 @@ class _SnakeGameState extends State<SnakeGame> {
     if (b || index == food) {
       if (snake.contains(food)) {
         debugPrint("$index");
-        print_snake();
+        printSnake();
         // Todo: add tail after eatting food
         int l = snake[0];
         snake.insert(0, l);
-        print_snake();
+        printSnake();
         foodGenrator();
 
         // return Colors.amber;
@@ -254,49 +291,57 @@ class _SnakeGameState extends State<SnakeGame> {
         return Colors.red;
       }
       return snakecolor;
-    } else
-      return playgroundcolor;
+    } else {
+      return backgroundColor;
+    }
   }
 
   void foodGenrator() {
-    int f = RandomInt.generate(max: (line * per_col));
+    int f = RandomInt.generate(max: (lines * perCol));
     while (snake.contains(f)) {
       debugPrint("f $f");
-      f = RandomInt.generate(max: (line * per_col));
+      f = RandomInt.generate(max: (lines * perCol));
     }
     food = f;
   }
 
   void reSet() {
     setState(() {
-      db_add_score(snake.length - 4, widget.title);
+      dbAddScore(snake.length - 4, widget.title);
       debugPrint("restting after game over...");
-      debugPrint("${snake_in}");
-      pre_move = "d";
+      debugPrint("$snakeIn");
+      preMove = "d";
       move = "d";
-      snake = [...snake_in];
-      debugPrint("${snake}");
+      snake = [...snakeIn];
+      debugPrint("$snake");
 
       foodGenrator();
-      if (snake_move != null) snake_move.cancel();
-      snake_move =
-          Timer.periodic(Duration(milliseconds: widget.speed), snake_reset);
+      if (snakeMove != null) snakeMove.cancel();
+      snakeMove =
+          Timer.periodic(Duration(milliseconds: widget.speed), snakeReset);
     });
   }
 
+// ignore: todo
 // DONE TODO: better impliment stopsnake  restart
   void sTopSnake() {
     setState(() {
       // ? print("done")
       // : print("failed");
-      // snake_move.
-      snake_move.cancel();
+      // snakeMove.
+      snakeMove.cancel();
+      int per_col = 20;
+      int lines = 15;
       showDialog<String>(
         context: context,
         builder: (BuildContext context) => AlertDialog(
           backgroundColor: playgroundcolor,
-          title: Text(
-            'Game Over',
+          title: const Text(
+            'Game Over!',
+            style: TextStyle(
+              fontFamily: 'SnakeGame',
+              fontSize: 25,
+            ),
           ),
           content: Text('Your Score : ${snake.length - 4}'),
           actions: <Widget>[
@@ -314,7 +359,7 @@ class _SnakeGameState extends State<SnakeGame> {
             TextButton(
               onPressed: () {
                 // Todo: reset all after game over
-                db_add_score(snake.length - 4, widget.title);
+                dbAddScore(snake.length - 4, widget.title);
                 Navigator.popUntil(context, ModalRoute.withName('/'));
                 // Navigator.pop(context, 'OK');
                 // Navigator.pop(context);
@@ -331,30 +376,30 @@ class _SnakeGameState extends State<SnakeGame> {
   }
 
   void upmove() {
-    if (pre_move == 'd') return;
+    if (preMove == 'd') return;
 
-    // print_snake();
+    // printSnake();
     down = false;
 
     // debugPrint("${snake[0] - 20}");
-    int index = (snake[snake.length - 1] - 20) % (line * per_col);
+    int index = (snake[snake.length - 1] - 20) % (lines * perCol);
     if (snake.contains(index)) {
       sTopSnake();
       return;
     }
     snake.insert(snake.length, index);
     snake.removeAt(0);
-    // print_snake();
-    pre_move = "u";
+    // printSnake();
+    preMove = "u";
   }
 
   void downmove() {
     // if (!down) return;
-    if (pre_move == 'u') return;
-    // debugPrint(pre_move);
-    // print_snake();
+    if (preMove == 'u') return;
+    // debugPrint(preMove);
+    // printSnake();
     down = true;
-    int index = (20 + snake[snake.length - 1]) % (line * per_col);
+    int index = (20 + snake[snake.length - 1]) % (lines * perCol);
     if (snake.contains(index)) {
       sTopSnake();
       return;
@@ -362,15 +407,15 @@ class _SnakeGameState extends State<SnakeGame> {
     // debugPrint("${20 + snake[snake.length - 1]}");
     snake.removeAt(0);
     snake.insert(snake.length, index);
-    // print_snake();
-    pre_move = "d";
+    // printSnake();
+    preMove = "d";
   }
 
   void leftmove() {
-    if (pre_move == 'r') return;
+    if (preMove == 'r') return;
     // if (!left) return;
-    // debugPrint(pre_move);
-    // print_snake();
+    // debugPrint(preMove);
+    // printSnake();
     // if (down) {
     // debugPrint("${-1 + snake[snake.length - 1]}");
     snake.removeAt(0);
@@ -391,14 +436,14 @@ class _SnakeGameState extends State<SnakeGame> {
       snake.insert(snake.length, index);
     }
 
-    pre_move = "l";
+    preMove = "l";
     left = true;
   }
 
   void rightmove() {
-    if (pre_move == 'l') return;
-    // debugPrint(pre_move);
-    // print_snake();
+    if (preMove == 'l') return;
+    // debugPrint(preMove);
+    // printSnake();
     /*
      !left is moving left before
      than add before snake 
@@ -424,7 +469,7 @@ class _SnakeGameState extends State<SnakeGame> {
     }
 
     left = false;
-    // print_snake();
-    pre_move = "r";
+    // printSnake();
+    preMove = "r";
   }
 }
